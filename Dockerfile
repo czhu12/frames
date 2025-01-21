@@ -1,44 +1,56 @@
-# Use the official Node.js image as a base
-FROM node:18-alpine as base
+ARG NODE_VERSION=20.3.0
+FROM node:${NODE_VERSION}-slim as base
 
-# Set the working directory
+LABEL fly_launch_runtime="Remix"
+
+# Remix app lives here
 WORKDIR /app
 
-# Install dependencies only once in a layer
-FROM base as deps
-COPY package.json package-lock.json ./
-RUN npm install --production=false
+# Set production environment
+ENV NODE_ENV="production"
+ENV PORT="3000"
 
-# Build the Prisma client
-FROM base as prisma
-COPY prisma ./prisma
-COPY --from=deps /app/node_modules ./node_modules
-RUN npx prisma generate
+# Install pnpm
+ARG PNPM_VERSION=9.6.0
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y openssl sqlite3 && \
+    npm install -g pnpm@$PNPM_VERSION
 
-# Build the Remix app
+# Throw-away build stage to reduce size of final image
 FROM base as build
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
 
-# Final stage: runtime image
-FROM node:18-alpine as runtime
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN $SENTRY_AUTH_TOKEN
 
-# Set environment variables
-ENV NODE_ENV=production
-WORKDIR /app
+# Install packages needed to build node modules
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential sqlite3 node-gyp pkg-config python-is-python3 python3-pip
 
-# Copy necessary files
-COPY --from=build /app/build ./build
-COPY --from=build /app/public ./public
-COPY --from=build /app/package.json .
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=prisma /app/node_modules/@prisma/client ./node_modules/@prisma/client
-COPY --from=prisma /app/prisma ./prisma
+ENV PYTHON=/usr/bin/python3
 
-# Expose the port Remix uses
+# Install node modules
+COPY --link package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod=false
+
+# Copy application code
+COPY --link . .
+
+# Build application
+RUN pnpm run build
+
+# Remove development dependencies
+# RUN pnpm prune --prod
+
+
+# Final stage for app image
+FROM base
+
+# Istall openssl n shit
+
+
+# Copy built application
+COPY --from=build /app /app
+
+# Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-
-# Start the application
-CMD ["npm", "run", "start"]
-
+ENTRYPOINT [ "./start.sh" ]

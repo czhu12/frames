@@ -94,11 +94,11 @@ export default function AddFrame({ onSave }: AddFrameProps) {
           </div>
 
           {showIframe && (
-            <div className="mt-4">
+            <div className="mt-4 flex justify-center items-center">
               <iframe
                 src={frame.url}
-                width="100%"
-                height="400"
+                width="50%"
+                height="200"
               />
             </div>
           )}
