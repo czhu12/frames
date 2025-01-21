@@ -28,7 +28,7 @@ ENV PYTHON=/usr/bin/python3
 
 # Install node modules
 COPY --link package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 # Copy application code
 COPY --link . .
