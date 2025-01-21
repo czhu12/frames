@@ -10,11 +10,9 @@ WORKDIR /app
 ENV NODE_ENV="production"
 ENV PORT="3000"
 
-# Install pnpm
-ARG PNPM_VERSION=9.6.0
+# Install necessary packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl sqlite3 && \
-    npm install -g pnpm@$PNPM_VERSION
+    apt-get install --no-install-recommends -y openssl sqlite3
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
@@ -29,24 +27,24 @@ RUN apt-get update -qq && \
 ENV PYTHON=/usr/bin/python3
 
 # Install node modules
-COPY --link package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod=false
+COPY --link package.json package-lock.json ./
+RUN npm install
 
 # Copy application code
 COPY --link . .
 
 # Build application
-RUN pnpm run build
+RUN npm run build
 
 # Remove development dependencies
-# RUN pnpm prune --prod
-
+RUN npm prune --production
 
 # Final stage for app image
 FROM base
 
-# Istall openssl n shit
-
+# Install necessary packages
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y openssl
 
 # Copy built application
 COPY --from=build /app /app
