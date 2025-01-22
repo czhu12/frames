@@ -9,36 +9,18 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover"
 
-export interface FrameData {
-  id?: string;
-  url: string;
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-}
+export default function AddFrame(props: { userId: string }) {
+  const [previewUrl, setPreviewUrl] = useState("");
 
-interface AddFrameProps {
-  onSave: (frame: FrameData) => Promise<void>;
-}
-
-export default function AddFrame({ onSave }: AddFrameProps) {
-  const [frame, setFrame] = useState<FrameData>({url: "", width: 1, height: 1, x: 0, y: 0});
-  const [showIframe, setShowIframe] = useState(false);
-
-  const handlePreview = (event: any) => {
-    event.preventDefault();
-    setShowIframe(true);
-  };
-
-  // This needs to layout the frames in a grid, which is 12 columns on xl and 4 on md, and 2 on sm, and 1 on xs
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline">Add new frame</Button>
       </PopoverTrigger>
       <PopoverContent className="w-[48rem]">
-        <Form onSubmit={handlePreview}>
+        <Form method="post">
+          <input type="hidden" name="userId" value={props.userId} />
+
           <div className="grid gap-4">
             <div className="space-y-2">
               <h4 className="font-medium leading-none">Dimensions</h4>
@@ -52,78 +34,86 @@ export default function AddFrame({ onSave }: AddFrameProps) {
                 <Input
                   id="url"
                   name="url"
-                  defaultValue="https://www.google.com"
+                  placeholder="https://www.google.com"
                   className="col-span-2 h-8"
-                  value={frame.url}
-                  onChange={(e) => setFrame({...frame, url: e.target.value})}
+                  required
+                  pattern="https?://.*"
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <Label htmlFor="x">X position</Label>
                 <Input
                   id="x"
+                  name="x"
                   type="number"
                   defaultValue="0"
                   className="col-span-2 h-8"
-                  value={frame.x}
-                  onChange={(e) => setFrame({...frame, x: parseInt(e.target.value)})}
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <Label htmlFor="y">Y position</Label>
                 <Input
                   id="y"
+                  name="y"
                   type="number"
                   defaultValue="0"
                   className="col-span-2 h-8"
-                  value={frame.y}
-                  onChange={(e) => setFrame({...frame, y: parseInt(e.target.value)})}
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <Label htmlFor="width">Width</Label>
                 <Input
                   id="width"
+                  name="width"
                   type="number"
                   defaultValue="1"
                   className="col-span-2 h-8"
-                  value={frame.width}
-                  onChange={(e) => setFrame({...frame, width: parseInt(e.target.value)})}
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
                 <Label htmlFor="height">Height</Label>
                 <Input
                   id="height"
+                  name="height"
                   type="number"
                   defaultValue="1"
                   className="col-span-2 h-8"
-                  value={frame.height}
-                  onChange={(e) => setFrame({...frame, height: parseInt(e.target.value)})}
                 />
               </div>
             </div>
           </div>
 
-          {showIframe && (
+          {previewUrl && (
             <div className="mt-4 flex justify-center items-center">
               <iframe
-                src={frame.url}
+                title="Preview frame"
+                src={previewUrl}
                 width="50%"
                 height="200"
               />
             </div>
           )}
-          {!showIframe && (
-            <Button variant="outline" type="submit" className="w-full mt-6">
+
+          <div className="py-8">
+            <hr/>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-2">
+            <Button variant="outline" type="button" className="w-full" onClick={() => {
+              const urlInput = document.getElementById("url") as HTMLInputElement;
+
+              if (urlInput.value) {
+                setPreviewUrl(urlInput.value);
+              }
+            }}
+            >
               Preview frame 👀
             </Button>
-          )}
-          {showIframe && (
-            <Button type="submit" className="w-full mt-6" onClick={() => onSave(frame)}>
-              Add frame to collection ➕
+
+            <Button className="w-full">
+              Add frame ➕
             </Button>
-          )}
+          </div>
         </Form>
       </PopoverContent>
     </Popover>

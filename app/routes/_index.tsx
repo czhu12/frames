@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, redirect, useLoaderData } from "@remix-run/react";
+import { Form, redirect, useLoaderData, useNavigation } from "@remix-run/react";
 import { prisma } from "~/db.server";
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
@@ -26,7 +26,7 @@ export async function action({
   request,
 }: ActionFunctionArgs) {
   const formData = await request.formData();
-  let username = formData.get("username") as string;
+  const username = formData.get("username") as string;
 
   // Use the validateUsername function
   const isValidUsername = validateUsername(username);
@@ -44,7 +44,6 @@ export async function action({
     },
   });
 
-  // Redirect to the new frame
   return redirect(`/frames/${username}`);
 }
 
@@ -60,17 +59,7 @@ export function validateUsername(username: string): boolean {
 
 export default function Index() {
   const { iFramesCount } = useLoaderData<typeof loader>();
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const username = formData.get("username") as string;
-
-    if (!validateUsername(username)) {
-      alert("Invalid username. It must be a valid ASCII URL without spaces.");
-      event.preventDefault(); // Prevent form submission if validation fails
-    }
-  };
+  const nav = useNavigation();
 
   return (
     <main className="container mx-auto p-6">
@@ -80,15 +69,19 @@ export default function Index() {
           <strong>{iFramesCount}</strong> frames have been created
         </p>
       </header>
+
       <section className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Create a New Frame</h2>
-        <Form method="POST" className="space-y-4" onSubmit={handleSubmit}>
+
+        <Form method="post" className="space-y-4">
           <Input 
             type="text" 
             name="username" 
             aria-label="Username" 
             className="w-full p-2 border border-gray-300 rounded"
             placeholder="Enter your username"
+            required
+            pattern="[\w\-]+"
           />
           <div className="flex items-center">
 
@@ -101,11 +94,11 @@ export default function Index() {
               Is public
             </Label>
           </div>
+
           <Button 
-            type="submit" 
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-300"
           >
-            Save
+            {nav.state === "submitting" ? "Saving..." : "Save"}
           </Button>
         </Form>
       </section>
