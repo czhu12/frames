@@ -1,13 +1,11 @@
 import { ActionFunctionArgs, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
-import { redirect, useLoaderData } from "@remix-run/react";
-import AddFrame, { FrameData } from "~/components/core/add-frame";
-import GridLayout from "react-grid-layout";
+import { useLoaderData } from "@remix-run/react";
+import AddFrame from "~/components/core/add-frame";
 import { Responsive, WidthProvider } from "react-grid-layout";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import { prisma } from "~/db.server";
 import Frame from "~/components/core/frame";
-import { useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -46,9 +44,11 @@ export async function action({request, params}: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
-  const userid = formData.get("userid") as string;
 
-  if (user.id !== userid) {
+  //TODO: use sessions w/cookies
+  const userId = formData.get("userId") as string;
+
+  if (user.id !== userId) {
     throw new Response("User does not match", { status: 403 });
   }
 
@@ -57,29 +57,20 @@ export async function action({request, params}: ActionFunctionArgs) {
   const y = parseInt(formData.get("y") as string);
   const width = parseInt(formData.get("width") as string);
   const height = parseInt(formData.get("height") as string);
-  await prisma.iFrame.create({
-    data: {url, x, y, width, height, user: {connect: {id: userid}}},
-  });
 
-  return redirect(`/frames/${params.username}`);
+  const newFrame = await prisma.iFrame.create({
+    data: {url, x, y, width, height, user: {connect: {id: userId}}},
+  }).catch(() => null);
+
+  if (!newFrame) {
+    return { error: "Failed to create frame" };
+  }
+
+  return newFrame;
 }
 
 export default function Frames() {
   const { user } = useLoaderData<typeof loader>();
-  const onAddFrame = async (iframe: FrameData) => {
-    const formData = new FormData();
-    formData.append("userid", user.id);
-    formData.append("url", iframe.url);
-    formData.append("x", iframe.x.toString());
-    formData.append("y", iframe.y.toString());
-    formData.append("width", iframe.width.toString());
-    formData.append("height", iframe.height.toString());
-
-    await fetch(`/frames/${user.username}`, {
-      method: "POST",
-      body: formData,
-    });
-  }
 
   // This needs to layout the frames in a grid, which is 12 columns on xl and 4 on md, and 2 on sm, and 1 on xs
   const layout = [
@@ -87,7 +78,7 @@ export default function Frames() {
     { i: "b", x: 2, y: 0, w: 3, h: 2 },
     { i: "c", x: 0, y: 0, w: 1, h: 2 }
   ];
-  const frameLayout = user.iFrames.map((iframe: any) => ({
+  const frameLayout = user.iFrames.map((iframe) => ({
     i: iframe.id,
     x: iframe.x,
     y: iframe.y,
@@ -100,17 +91,17 @@ export default function Frames() {
       {user.iFrames.length === 0 ? (
         <div className="text-center py-10">
           <p>No frames available.</p>
-          <p>Click on "Add new frame" to add your first frame.</p>
-          <AddFrame onSave={onAddFrame} />
+          <p>Click on &quot;Add new frame&quot; to add your first frame.</p>
+          <AddFrame userId={user.id} />
         </div>
       ) : (
         <div>
           <div className="container mx-auto">
             <div className="flex justify-between">
               <div>
-                <h1 className="text-2xl font-bold">{user.username}'s Frames</h1>
+                <h1 className="text-2xl font-bold">{user.username}&apos;s Frames</h1>
               </div>
-              <AddFrame onSave={onAddFrame} />
+              <AddFrame userId={user.id} />
             </div>
           </div>
           <ResponsiveGridLayout
@@ -120,7 +111,7 @@ export default function Frames() {
                 cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
                 useCSSTransforms={true}
               >
-              {user.iFrames.map((iframe: any) => (
+              {user.iFrames.map((iframe) => (
                 <div key={iframe.id}>
                   <Frame frame={iframe}/>
                 </div>
