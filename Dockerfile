@@ -1,54 +1,54 @@
+# Base node image
 ARG NODE_VERSION=20.3.0
 FROM node:${NODE_VERSION}-slim as base
 
-LABEL fly_launch_runtime="Remix"
-
-# Remix app lives here
+# Set working directory
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
-ENV PORT="3000"
+# Install openssl for Prisma
+RUN apt-get update && apt-get install -y openssl
 
-# Install necessary packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl sqlite3
+# Install dependencies only when needed
+FROM base AS deps
+# Install dependencies needed for node-gyp
+RUN apt-get update && apt-get install -y python3 make g++
 
-# Throw-away build stage to reduce size of final image
-FROM base as build
+# Copy package files
+COPY package.json package-lock.json* ./
 
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN $SENTRY_AUTH_TOKEN
-
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential sqlite3 node-gyp pkg-config python-is-python3 python3-pip
-
-ENV PYTHON=/usr/bin/python3
-
-# Install node modules
-COPY --link package.json package-lock.json ./
+# Install dependencies
 RUN npm ci
 
-# Copy application code
-COPY --link . .
+# Build the app
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Build application
+# Generate Prisma client and build the application
+RUN npx prisma generate
 RUN npm run build
 
-# Remove development dependencies
-RUN npm prune --production
+# Production image, copy all the files and run the app
+FROM base AS runner
+WORKDIR /app
 
-# Final stage for app image
-FROM base
+ENV NODE_ENV production
 
-# Install necessary packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl
+# Copy necessary files - modified to ensure all build artifacts are included
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/start.sh ./start.sh
 
-# Copy built application
-COPY --from=build /app /app
+# Install only production dependencies
+RUN npm ci --omit=dev
 
-# Start the server by default, this can be overwritten at runtime
+# Expose the port the app runs on
 EXPOSE 3000
-ENTRYPOINT [ "./start.sh" ]
+
+# Run the application
+CMD ["./start.sh"]
