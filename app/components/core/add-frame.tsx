@@ -10,10 +10,12 @@ import {
 } from "~/components/ui/popover"
 
 export interface FrameData {
+  id?: string;
   url: string;
   width: number;
   height: number;
-  order: number;
+  x: number;
+  y: number;
 }
 
 interface AddFrameProps {
@@ -21,12 +23,11 @@ interface AddFrameProps {
 }
 
 export default function AddFrame({ onSave }: AddFrameProps) {
-  const [frame, setFrame] = useState<FrameData>({url: "", width: 1, height: 1, order: 1});
+  const [frame, setFrame] = useState<FrameData>({url: "", width: 1, height: 1, x: 0, y: 0});
   const [showIframe, setShowIframe] = useState(false);
 
   const handlePreview = (event: any) => {
     event.preventDefault();
-    console.log(frame);
     setShowIframe(true);
   };
 
@@ -58,14 +59,25 @@ export default function AddFrame({ onSave }: AddFrameProps) {
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
-                <Label htmlFor="order">Order</Label>
+                <Label htmlFor="x">X position</Label>
                 <Input
-                  id="order"
+                  id="x"
                   type="number"
-                  defaultValue="1"
+                  defaultValue="0"
                   className="col-span-2 h-8"
-                  value={frame.order}
-                  onChange={(e) => setFrame({...frame, order: parseInt(e.target.value)})}
+                  value={frame.x}
+                  onChange={(e) => setFrame({...frame, x: parseInt(e.target.value)})}
+                />
+              </div>
+              <div className="grid grid-cols-3 items-center gap-4">
+                <Label htmlFor="y">Y position</Label>
+                <Input
+                  id="y"
+                  type="number"
+                  defaultValue="0"
+                  className="col-span-2 h-8"
+                  value={frame.y}
+                  onChange={(e) => setFrame({...frame, y: parseInt(e.target.value)})}
                 />
               </div>
               <div className="grid grid-cols-3 items-center gap-4">
