@@ -1,3 +1,4 @@
+build/
 prisma/data/
 node_modules
 

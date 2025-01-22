@@ -1,8 +1,13 @@
 import { ActionFunctionArgs, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { redirect, useLoaderData } from "@remix-run/react";
 import AddFrame, { FrameData } from "~/components/core/add-frame";
+import GridLayout from "react-grid-layout";
+import { Responsive, WidthProvider } from "react-grid-layout";
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import { prisma } from "~/db.server";
+import Frame from "~/components/core/frame";
+import { useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,9 +23,6 @@ export async function loader({params}: LoaderFunctionArgs) {
     },
     include: {
       iFrames: {
-        orderBy: {
-          order: 'asc'
-        }
       }
     }
   });
@@ -51,11 +53,12 @@ export async function action({request, params}: ActionFunctionArgs) {
   }
 
   const url = formData.get("url") as string;
-  const order = parseInt(formData.get("order") as string);
+  const x = parseInt(formData.get("x") as string);
+  const y = parseInt(formData.get("y") as string);
   const width = parseInt(formData.get("width") as string);
   const height = parseInt(formData.get("height") as string);
   await prisma.iFrame.create({
-    data: {url, order, width, height, user: {connect: {id: userid}}},
+    data: {url, x, y, width, height, user: {connect: {id: userid}}},
   });
 
   return redirect(`/frames/${params.username}`);
@@ -67,7 +70,8 @@ export default function Frames() {
     const formData = new FormData();
     formData.append("userid", user.id);
     formData.append("url", iframe.url);
-    formData.append("order", iframe.order.toString());
+    formData.append("x", iframe.x.toString());
+    formData.append("y", iframe.y.toString());
     formData.append("width", iframe.width.toString());
     formData.append("height", iframe.height.toString());
 
@@ -78,6 +82,19 @@ export default function Frames() {
   }
 
   // This needs to layout the frames in a grid, which is 12 columns on xl and 4 on md, and 2 on sm, and 1 on xs
+  const layout = [
+    { i: "a", x: 0, y: 0, w: 1, h: 2 },
+    { i: "b", x: 2, y: 0, w: 3, h: 2 },
+    { i: "c", x: 0, y: 0, w: 1, h: 2 }
+  ];
+  const frameLayout = user.iFrames.map((iframe: any) => ({
+    i: iframe.id,
+    x: iframe.x,
+    y: iframe.y,
+    w: iframe.width,
+    h: iframe.height
+  }));
+
   return (
     <main className="p-4">
       {user.iFrames.length === 0 ? (
@@ -88,18 +105,40 @@ export default function Frames() {
         </div>
       ) : (
         <div>
-          <div className="flex justify-end">
-            <AddFrame onSave={onAddFrame} />
-          </div>
-          <div className="grid xl:grid-cols-12 lg:grid-cols-8 md:grid-cols-4 sm:grid-cols-2 xs:grid-cols-1 gap-1">
-            {user.iFrames.map((iframe: any) => (
-              <div key={iframe.id} className="col-span-12 md:col-span-4 sm:col-span-2 xs:col-span-1">
-                <iframe src={iframe.url}/>
+          <div className="container mx-auto">
+            <div className="flex justify-between">
+              <div>
+                <h1 className="text-2xl font-bold">{user.username}'s Frames</h1>
               </div>
-            ))}
+              <AddFrame onSave={onAddFrame} />
+            </div>
           </div>
+          <ResponsiveGridLayout
+                className="layout"
+                layouts={{ lg: frameLayout, md: frameLayout, sm: frameLayout, xs: frameLayout, xxs: frameLayout }}
+                breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+                cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+                useCSSTransforms={true}
+              >
+              {user.iFrames.map((iframe: any) => (
+                <div key={iframe.id}>
+                  <Frame frame={iframe}/>
+                </div>
+              ))}
+          </ResponsiveGridLayout>
         </div>
       )}
+      <ResponsiveGridLayout
+            className="layout"
+            layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
+            breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+            cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+            useCSSTransforms={true}
+          >
+            <div className="border border-red-500" key="a">a</div>
+            <div className="border border-red-500" key="b">b</div>
+            <div className="border border-red-500" key="c">c</div>
+      </ResponsiveGridLayout>
     </main>
   );
 }
