@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, redirect, useLoaderData } from "@remix-run/react";
+import { Form, redirect, useLoaderData, useNavigation } from "@remix-run/react";
 import { prisma } from "~/db.server";
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
@@ -8,17 +8,17 @@ import { Label } from "~/components/ui/label"
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Frames - Create a person iframe dashboard" },
-    { name: "description", content: "Frames is a tool for creating iframe dashboards for your friends and family." },
+    { title: "Frames - Create your own dashboard from (mostly) any website" },
+    { name: "description", content: "Frames is a super charged bookmark manager" },
   ];
 };
 
 export async function loader({
   request,
 }: LoaderFunctionArgs) {
-  const iFramesCount = await prisma.iFrame.count();
+  const framesCount = await prisma.frame.count();
   return {
-    iFramesCount
+    framesCount
   }
 }
 
@@ -38,14 +38,20 @@ export async function action({
     };
   }
 
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       username,
     },
   });
+  const collection = await prisma.collection.create({
+    data: {
+      name: `${username}'s default collection`,
+      userId: user.id,
+    },
+  });
 
   // Redirect to the new frame
-  return redirect(`/frames/${username}`);
+  return redirect(`/frames/${username}?collectionId=${collection.id}`);
 }
 
 export function validateUsername(username: string): boolean {
@@ -59,36 +65,29 @@ export function validateUsername(username: string): boolean {
 }
 
 export default function Index() {
-  const { iFramesCount } = useLoaderData<typeof loader>();
+  const { framesCount } = useLoaderData<typeof loader>();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const username = formData.get("username") as string;
-
-    if (!validateUsername(username)) {
-      alert("Invalid username. It must be a valid ASCII URL without spaces.");
-      event.preventDefault(); // Prevent form submission if validation fails
-    }
-  };
+  const nav = useNavigation();
 
   return (
     <main className="container mx-auto p-6">
       <header className="text-center mb-8">
         <h1 className="text-3xl font-bold text-blue-600">Frame Collection</h1>
         <p className="text-lg text-gray-700 mt-2">
-          <strong>{iFramesCount}</strong> frames have been created
+          <strong>{framesCount}</strong> frames have been created
         </p>
       </header>
       <section className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Create a New Frame</h2>
-        <Form method="POST" className="space-y-4" onSubmit={handleSubmit}>
+        <Form method="post" className="space-y-4">
           <Input 
             type="text" 
             name="username" 
             aria-label="Username" 
             className="w-full p-2 border border-gray-300 rounded"
             placeholder="Enter your username"
+            required
+            pattern="[\w\-]+"
           />
           <div className="flex items-center">
 
@@ -105,7 +104,7 @@ export default function Index() {
             type="submit" 
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-300"
           >
-            Save
+            {nav.state === "submitting" ? "Saving..." : "Save"}
           </Button>
         </Form>
       </section>
