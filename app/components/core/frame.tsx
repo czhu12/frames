@@ -10,7 +10,7 @@ import FrameForm from "./frame-form";
 
 export default function Frame({frame, userId, collectionId}: {frame: FrameData, userId: string, collectionId: string}) {
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <iframe src={frame.url} className="w-full h-full" />
       <div className="mt-2 flex justify-between">
         <Popover>
