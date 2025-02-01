@@ -62,7 +62,10 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     throw new Response("Collection not found", { status: 404 });
   }
 
-  return { user: { username: user.username }, collection, collections };
+  delete user.id
+  delete collection.userId;
+  collections.forEach((collection: any) => delete collection.userId);
+  return { user, collection, collections };
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -91,7 +94,7 @@ export async function action({request, params}: ActionFunctionArgs) {
     const collection = await prisma.collection.create({
       data: { name, userId: user.id },
     });
-    return redirect(`/frames/${user.username}?collectionId=${collection.id}`);
+    return redirect(`/${user.username}?collectionId=${collection.id}&secret=${userId}`);
   } else if (intent === "delete") {
     const id = formData.get("id") as string;
 
@@ -135,7 +138,7 @@ export default function Frames() {
 
   return (
     <main className="p-4">
-      {collection?.frames.length === 0 ? (
+      {(collection?.frames.length === 0 && collections.length === 1) ? (
         <div>
           <Confetti width={width} height={height} recycle={false} numberOfPieces={500} tweenDuration={10000} />
           <div className="mt-10">

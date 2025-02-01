@@ -34,15 +34,18 @@ export default function Collections({
       <PopoverContent className="w-[24rem]">
         <NavigationMenu className="mb-4">
           <NavigationMenuList>
-            {collections.map((collection) => (
-              <NavigationMenuItem key={collection.id} className="block">
-                <Link to={`/frames/${username}?collectionId=${collection.id}`}>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    {collection.name} →
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            ))}
+            {collections.map((collection) => {
+              const to = `/${username}?collectionId=${collection.id}${userId ? `&secret=${userId}` : ''}`;
+              return (
+                <NavigationMenuItem key={collection.id} className="block">
+                  <Link to={to}>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      {collection.name} →
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              );
+            })}
           </NavigationMenuList>
         </NavigationMenu>
         <Form method="post" className="flex flex-row gap-2">
