@@ -61,7 +61,7 @@ export async function action({
   });
 
   // Redirect to the new frame
-  return redirect(`/frames/${username}?collectionId=${collection.id}`);
+  return redirect(`/${username}?secret=${user.id}`);
 }
 
 export function validateUsername(username: string): boolean {

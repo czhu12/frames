@@ -1,9 +1,9 @@
 import { ActionFunctionArgs, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
-import { redirect, useLoaderData } from "@remix-run/react";
+import { redirect, useLoaderData, useSearchParams } from "@remix-run/react";
+import Instructions from "~/components/core/instructions";
 import AddFrame from "~/components/core/add-frame";
 import { Responsive, WidthProvider } from "react-grid-layout";
-const ResponsiveGridLayout = WidthProvider(Responsive);
-import { extractFrameData } from "~/lib/utils";
+import { extractFrameData, useWindowSize } from "~/lib/utils";
 
 import { prisma } from "~/db.server";
 import Frame from "~/components/core/frame";
@@ -11,6 +11,9 @@ import Collections from "~/components/core/collections";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { Menu } from "lucide-react";
+import Confetti from "react-confetti";
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export const meta: MetaFunction = ({ params }) => {
   return [
@@ -59,7 +62,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
     throw new Response("Collection not found", { status: 404 });
   }
 
-  return { user, collection, collections };
+  return { user: { username: user.username }, collection, collections };
 }
 
 export async function action({request, params}: ActionFunctionArgs) {
@@ -108,13 +111,17 @@ export async function action({request, params}: ActionFunctionArgs) {
     await prisma.frame.create({
       data: { ...frameData, collectionId: collectionId},
     });
-
   }
+
   return new Response(null, { status: 200 });
 }
 
 export default function Frames() {
   const { user, collection, collections } = useLoaderData<typeof loader>();
+  // get the search params userId
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userId = searchParams.get("secret");
+
   // This needs to layout the frames in a grid, which is 12 columns on xl and 4 on md, and 2 on sm, and 1 on xs
   const frameLayout = collection?.frames.map((frame: any) => ({
     i: frame.id,
@@ -124,22 +131,22 @@ export default function Frames() {
     h: frame.height
   }));
 
+  const { width, height } = useWindowSize();
+
   return (
     <main className="p-4">
       {collection?.frames.length === 0 ? (
         <div>
-          <div className="mb-8 container mx-auto">
-            <Collections
-              userId={user.id}
-              username={user.username}
-              collections={collections}
-              currentCollection={collection}
-            />
-          </div>
-          <div className="text-center py-10">
-            <p className="text-2xl font-bold">No frames yet...</p>
-            <p className="text-lg mb-3">Click on "Add new frame" to add your first frame.</p>
-            <AddFrame userId={user.id} collectionId={collection.id} />
+          <Confetti width={width} height={height} recycle={false} numberOfPieces={500} tweenDuration={10000} />
+          <div className="mt-10">
+            <div className="text-center py-10">
+              <Instructions username={user.username} userId={userId} />
+              <div className="mt-10">
+                <p className="text-2xl font-bold">No frames yet...</p>
+                <p className="text-lg mb-3">Click on "Add new frame" to add your first frame.</p>
+                <AddFrame userId={userId} collectionId={collection.id} />
+              </div>
+            </div>
           </div>
         </div>
       ) : (
@@ -149,7 +156,7 @@ export default function Frames() {
               {/* Show on larger screens, hide on small */}
               <div className="hidden sm:flex justify-between items-center w-full">
                 <Collections
-                  userId={user.id}
+                  userId={userId}
                   username={user.username}
                   collections={collections}
                   currentCollection={collection}
@@ -157,7 +164,7 @@ export default function Frames() {
                 <div>
                   <h1 className="text-2xl font-bold">{user.username}'s Frames</h1>
                 </div>
-                <AddFrame userId={user.id} collectionId={collection.id} />
+                <AddFrame userId={userId} collectionId={collection.id} />
               </div>
 
               {/* Show on small screens, hide on larger */}
@@ -171,12 +178,12 @@ export default function Frames() {
                   <SheetContent side="left" className="w-[300px]">
                     <div className="flex flex-col gap-4 pt-6">
                       <Collections
-                        userId={user.id}
+                        userId={userId}
                         username={user.username}
                         collections={collections}
                         currentCollection={collection}
                       />
-                      <AddFrame userId={user.id} collectionId={collection.id} />
+                      <AddFrame userId={userId} collectionId={collection.id} />
                     </div>
                   </SheetContent>
                 </Sheet>
@@ -196,7 +203,7 @@ export default function Frames() {
           >
             {collection?.frames.map((frame: any) => (
               <div key={frame.id}>
-                <Frame frame={frame} userId={user.id} collectionId={collection.id} />
+                <Frame frame={frame} userId={userId} collectionId={collection.id} />
               </div>
             ))}
           </ResponsiveGridLayout>
