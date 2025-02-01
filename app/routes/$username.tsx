@@ -37,7 +37,7 @@ export async function loader({params, request}: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const user = await prisma.user.findUnique({
     where: {
-      username: params.username,
+      username: params.username.toLowerCase(),
     },
   });
   const collectionId = url.searchParams.get("collectionId");

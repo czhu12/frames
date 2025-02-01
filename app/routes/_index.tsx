@@ -37,7 +37,7 @@ export async function action({
 }: ActionFunctionArgs) {
   const formData = await request.formData();
   let username = formData.get("username") as string;
-
+  username = username.toLowerCase();
   // Use the validateUsername function
   const isValidUsername = validateUsername(username);
 
