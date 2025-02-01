@@ -163,6 +163,7 @@ export default function Frames() {
             useCSSTransforms={true}
             isResizable={false}
             isDraggable={false}
+            margin={[10, 50]}
           >
             {collection?.frames.map((frame: any) => (
               <div key={frame.id}>
