@@ -8,6 +8,9 @@ import { extractFrameData } from "~/lib/utils";
 import { prisma } from "~/db.server";
 import Frame from "~/components/core/frame";
 import Collections from "~/components/core/collections";
+import { Button } from "~/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { Menu } from "lucide-react";
 
 export const meta: MetaFunction = ({ params }) => {
   return [
@@ -15,15 +18,15 @@ export const meta: MetaFunction = ({ params }) => {
     { name: "description", content: `${params.username}'s collection of frames.` },
     { property: "og:title", content: `${params.username}'s Frames` },
     { property: "og:type", content: "website" },
-    { property: "og:url", content: `https://frames.canine.sh/frames/${params.username}` },
-    { property: "og:image", content: "https://frames.canine.sh/dashboard-og.png" },
+    { property: "og:url", content: `https://reframe.canine.sh/frames/${params.username}` },
+    { property: "og:image", content: "https://reframe.canine.sh/dashboard-og.png" },
     { property: "og:description", content: `${params.username}'s collection of frames.` },
     { property: "twitter:card", content: "summary_large_image" },
-    { property: "twitter:domain", content: `frames.canine.sh/frames/${params.username}` },
-    { property: "twitter:url", content: `https://frames.canine.sh/frames/${params.username}` },
+    { property: "twitter:domain", content: `reframe.canine.sh/frames/${params.username}` },
+    { property: "twitter:url", content: `https://reframe.canine.sh/frames/${params.username}` },
     { property: "twitter:title", content: `${params.username}'s Frames` },
     { property: "twitter:description", content: `${params.username}'s collection of frames.` },
-    { property: "twitter:image", content: "https://frames.canine.sh/dashboard-og.png" },
+    { property: "twitter:image", content: "https://reframe.canine.sh/dashboard-og.png" },
   ];
 };
 
@@ -134,25 +137,51 @@ export default function Frames() {
             />
           </div>
           <div className="text-center py-10">
-            <p>No frames available.</p>
-            <p>Click on "Add new frame" to add your first frame.</p>
+            <p className="text-2xl font-bold">No frames yet...</p>
+            <p className="text-lg mb-3">Click on "Add new frame" to add your first frame.</p>
             <AddFrame userId={user.id} collectionId={collection.id} />
           </div>
         </div>
       ) : (
         <div>
           <div className="mb-8 container mx-auto">
-            <div className="flex justify-between">
-              <Collections
-                userId={user.id}
-                username={user.username}
-                collections={collections}
-                currentCollection={collection}
-              />
-              <div>
+            <div className="flex justify-between items-center">
+              {/* Show on larger screens, hide on small */}
+              <div className="hidden sm:flex justify-between items-center w-full">
+                <Collections
+                  userId={user.id}
+                  username={user.username}
+                  collections={collections}
+                  currentCollection={collection}
+                />
+                <div>
+                  <h1 className="text-2xl font-bold">{user.username}'s Frames</h1>
+                </div>
+                <AddFrame userId={user.id} collectionId={collection.id} />
+              </div>
+
+              {/* Show on small screens, hide on larger */}
+              <div className="sm:hidden flex justify-between items-center w-full">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px]">
+                    <div className="flex flex-col gap-4 pt-6">
+                      <Collections
+                        userId={user.id}
+                        username={user.username}
+                        collections={collections}
+                        currentCollection={collection}
+                      />
+                      <AddFrame userId={user.id} collectionId={collection.id} />
+                    </div>
+                  </SheetContent>
+                </Sheet>
                 <h1 className="text-2xl font-bold">{user.username}'s Frames</h1>
               </div>
-              <AddFrame userId={user.id} collectionId={collection.id} />
             </div>
           </div>
           <ResponsiveGridLayout
@@ -173,6 +202,9 @@ export default function Frames() {
           </ResponsiveGridLayout>
         </div>
       )}
+      <footer className="text-right text-xs text-gray-500 mt-6">
+        Create your own with <a href="/" className="font-bold italic text-blue-600 logo [text-shadow:_0_1px_3px_rgba(37,99,235,0.2)]">reframe</a>
+      </footer>
     </main>
   );
 }

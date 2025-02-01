@@ -49,7 +49,7 @@ export default function Collections({
           <input type="hidden" name="intent" value="create-collection" />
           <input type="hidden" name="userId" value={userId} />
           <Input type="text" name="name" placeholder="New collection name" autoFocus />
-          <Button type="submit">Save</Button>
+          <Button type="submit">Create</Button>
         </Form>
       </PopoverContent>
     </Popover>
