@@ -13,6 +13,13 @@ export const meta: MetaFunction = () => {
     { property: "og:type", content: "website" },
     { property: "og:url", content: `https://frames.canine.sh` },
     { property: "og:image", content: "https://frames.canine.sh/dashboard-og.png" },
+
+    { property: "twitter:card", content: "summary_large_image" },
+    { property: "twitter:domain", content: "frames.canine.sh" },
+    { property: "twitter:url", content: "https://frames.canine.sh" },
+    { property: "twitter:title", content: "Frames - Create your own dashboard from (mostly) any website" },
+    { property: "twitter:description", content: "Frames is a super charged bookmark manager" },
+    { property: "twitter:image", content: "https://frames.canine.sh/dashboard-og.png" },
   ];
 };
 

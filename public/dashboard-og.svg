@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  
+  <!-- Grid pattern for background -->
+  <path d="M0 63 L1200 63 M0 126 L1200 126 M0 189 L1200 189 M0 252 L1200 252 M0 315 L1200 315 M0 378 L1200 378 M0 441 L1200 441 M0 504 L1200 504 M0 567 L1200 567" stroke="#e2e8f0" stroke-width="1" fill="none" opacity="0.5"/>
+  
+  <!-- Main Dashboard Container -->
+  <rect x="150" y="115" width="900" height="400" rx="16" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  
+  <!-- Dashboard Header -->
+  <rect x="150" y="115" width="900" height="50" rx="16" fill="#f1f5f9"/>
+  <circle cx="185" cy="140" r="8" fill="#dc2626"/>
+  <circle cx="215" cy="140" r="8" fill="#fbbf24"/>
+  <circle cx="245" cy="140" r="8" fill="#22c55e"/>
+  
+  <!-- Dashboard Grid -->
+  <!-- Widget 1 -->
+  <rect x="170" y="185" width="420" height="150" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="170" y="185" width="420" height="30" rx="8" fill="#f1f5f9"/>
+  <rect x="190" y="235" width="380" height="80" rx="4" fill="#f8fafc"/>
+  
+  <!-- Widget 2 -->
+  <rect x="610" y="185" width="420" height="150" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="610" y="185" width="420" height="30" rx="8" fill="#f1f5f9"/>
+  <rect x="630" y="235" width="380" height="80" rx="4" fill="#f8fafc"/>
+  
+  <!-- Widget 3 -->
+  <rect x="170" y="355" width="420" height="140" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="170" y="355" width="420" height="30" rx="8" fill="#f1f5f9"/>
+  <rect x="190" y="405" width="380" height="70" rx="4" fill="#f8fafc"/>
+  
+  <!-- Widget 4 -->
+  <rect x="610" y="355" width="420" height="140" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="610" y="355" width="420" height="30" rx="8" fill="#f1f5f9"/>
+  <rect x="630" y="405" width="380" height="70" rx="4" fill="#f8fafc"/>
+  
+  <!-- Plus icons for adding widgets -->
+  <g transform="translate(350, 265)" fill="#94a3b8">
+    <rect x="-15" y="-2" width="30" height="4" rx="2"/>
+    <rect x="-2" y="-15" width="4" height="30" rx="2"/>
+  </g>
+  
+  <g transform="translate(790, 265)" fill="#94a3b8">
+    <rect x="-15" y="-2" width="30" height="4" rx="2"/>
+    <rect x="-2" y="-15" width="4" height="30" rx="2"/>
+  </g>
+  
+  <!-- Text Elements -->
+  <text x="600" y="570" text-anchor="middle" font-family="system-ui, -apple-system" font-size="36" font-weight="bold" fill="#0f172a">Dashboard Creator</text>
+  <text x="600" y="605" text-anchor="middle" font-family="system-ui, -apple-system" font-size="24" fill="#64748b">Build your perfect dashboard in minutes</text>
+</svg>

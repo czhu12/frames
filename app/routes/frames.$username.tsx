@@ -18,6 +18,12 @@ export const meta: MetaFunction = ({ params }) => {
     { property: "og:url", content: `https://frames.canine.sh/frames/${params.username}` },
     { property: "og:image", content: "https://frames.canine.sh/dashboard-og.png" },
     { property: "og:description", content: `${params.username}'s collection of frames.` },
+    { property: "twitter:card", content: "summary_large_image" },
+    { property: "twitter:domain", content: `frames.canine.sh/frames/${params.username}` },
+    { property: "twitter:url", content: `https://frames.canine.sh/frames/${params.username}` },
+    { property: "twitter:title", content: `${params.username}'s Frames` },
+    { property: "twitter:description", content: `${params.username}'s collection of frames.` },
+    { property: "twitter:image", content: "https://frames.canine.sh/dashboard-og.png" },
   ];
 };
 
