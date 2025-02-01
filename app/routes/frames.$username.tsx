@@ -9,10 +9,9 @@ import { prisma } from "~/db.server";
 import Frame from "~/components/core/frame";
 import Collections from "~/components/core/collections";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ params }) => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: `${params.username}'s Frames` },
   ];
 };
 
