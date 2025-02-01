@@ -12,6 +12,12 @@ import Collections from "~/components/core/collections";
 export const meta: MetaFunction = ({ params }) => {
   return [
     { title: `${params.username}'s Frames` },
+    { name: "description", content: `${params.username}'s collection of frames.` },
+    { property: "og:title", content: `${params.username}'s Frames` },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: `https://frames.canine.sh/frames/${params.username}` },
+    { property: "og:image", content: "https://frames.canine.sh/dashboard-og.png" },
+    { property: "og:description", content: `${params.username}'s collection of frames.` },
   ];
 };
 

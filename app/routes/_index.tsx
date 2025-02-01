@@ -10,6 +10,9 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Frames - Create your own dashboard from (mostly) any website" },
     { name: "description", content: "Frames is a super charged bookmark manager" },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: `https://frames.canine.sh` },
+    { property: "og:image", content: "https://frames.canine.sh/dashboard-og.png" },
   ];
 };
 
