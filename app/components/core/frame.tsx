@@ -13,16 +13,23 @@ export default function Frame({frame, userId, collectionId}: {frame: FrameData, 
   return (
     <div className="w-full h-full">
       <iframe src={frame.url} className="w-full h-full" />
-      <div className="mt-2 flex justify-between">
-        <div>
-          <Button variant="outline" size="sm" asChild>
-            <a href={frame.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
-              Visit
-              <img src={parseFrameFavicon(frame.url)} alt="External link" className="w-4 h-4" />
-            </a>
-          </Button>
+      {!userId && (
+        <div className="mt-1 text-xs hover:underline">
+          <a href={frame.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+            Visit →
+          </a>
         </div>
-        {userId && (
+      )}
+      {userId && (
+        <div className="mt-2 flex justify-between">
+          <div>
+            <Button variant="outline" size="sm" asChild>
+              <a href={frame.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+                Visit
+                <img src={parseFrameFavicon(frame.url)} alt="External link" className="w-4 h-4" />
+              </a>
+            </Button>
+          </div>
           <div className="flex gap-1">
             <Popover>
               <PopoverTrigger asChild>
@@ -53,8 +60,8 @@ export default function Frame({frame, userId, collectionId}: {frame: FrameData, 
               </Button>
             </Form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
