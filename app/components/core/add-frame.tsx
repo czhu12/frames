@@ -21,7 +21,7 @@ export default function AddFrame({userId, collectionId}: {userId: string, collec
       <PopoverTrigger asChild>
         <Button variant="outline">Add new frame</Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[48rem]">
+      <PopoverContent className="w-full lg:w-[48rem]">
         <FrameForm userId={userId} collectionId={collectionId} intent="add" />
       </PopoverContent>
     </Popover>
