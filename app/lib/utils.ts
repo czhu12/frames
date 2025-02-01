@@ -13,3 +13,9 @@ export function extractFrameData(formData: FormData) {
   const height = parseInt(formData.get("height") as string);
   return { url, x, y, width, height };
 }
+
+export function parseFrameFavicon(url: string) {
+  const faviconUrl = new URL(url);
+  faviconUrl.pathname = "/favicon.ico";
+  return faviconUrl.toString();
+}

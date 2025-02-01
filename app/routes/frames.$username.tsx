@@ -202,7 +202,7 @@ export default function Frames() {
           </ResponsiveGridLayout>
         </div>
       )}
-      <footer className="text-right text-xs text-gray-500 mt-6">
+      <footer className="text-center text-xs text-gray-500 mt-6">
         Create your own with <a href="/" className="font-bold italic text-blue-600 logo [text-shadow:_0_1px_3px_rgba(37,99,235,0.2)]">reframe</a>
       </footer>
     </main>
