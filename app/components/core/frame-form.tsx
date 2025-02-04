@@ -39,7 +39,7 @@ export default function FrameForm({userId, collectionId, intent, frame}: {userId
             />
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
-            <Label htmlFor="x">X position</Label>
+            <Label htmlFor="x">Row</Label>
             <Input
               id="x"
               type="number"
@@ -49,7 +49,7 @@ export default function FrameForm({userId, collectionId, intent, frame}: {userId
             />
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
-            <Label htmlFor="y">Y position</Label>
+            <Label htmlFor="y">Column</Label>
             <Input
               id="y"
               type="number"
